@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+
+  postgres:
+    container_name: postgres-container
+    build:
+      context: .
+      dockerfile: ./docker/postgres/Dockerfile
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=P0stgres
+      - POSTGRES_DB=tourreserve
+
+  maven:
+    container_name: maven-container
+    build:
+      context: .
+      dockerfile: ./docker/centos/Dockerfile
+    tty: true
+    volumes:
+      - ./terasoluna:/home/root/terasoluna
+
+  tomcat:
+    container_name: tomcat-container
+    image: tomcat:9.0.30-jdk11-openjdk
+    volumes:
+      - ./terasoluna:/root/terasoluna
+
+  httpd:
+    container_name: httpd-container
+    depends_on:
+      - tomcat
+    build:
+      context: .
+      dockerfile: ./docker/httpd/Dockerfile
+    image: httpd:2.4.41
+    ports:
+      - "10080:80"
